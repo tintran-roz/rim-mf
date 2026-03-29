@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>RCA Kitting PDA</title>
+<style>
+:root{--bg:#080c14;--card:#111827;--border:#1e2d42;--blue:#2e86de;--green:#27ae60;--yellow:#f39c12;--red:#e74c3c;--cyan:#00cec9;--txt:#dfe6e9;--dim:#636e72;--r:10px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);display:flex;flex-direction:column;min-height:100vh;overscroll-behavior:none}
+.hdr{background:linear-gradient(135deg,#0d1a2e,#1a2744);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid var(--blue);flex-shrink:0}
+.hdr h1{font-size:.92em;font-weight:800;color:#fff;letter-spacing:1px}
+.hdr .tag{padding:2px 8px;border-radius:8px;font-size:.58em;font-weight:700;background:var(--blue);color:#fff}
+.hdr .nav-link{padding:2px 8px;border-radius:8px;font-size:.58em;font-weight:700;background:var(--card);color:var(--cyan);border:1px solid var(--cyan);text-decoration:none;margin-left:6px}
+.prog{display:flex;padding:8px 14px;gap:3px;flex-shrink:0;background:#0b1018}
+.dot{flex:1;height:4px;border-radius:2px;background:var(--border);transition:.3s}.dot.on{background:var(--blue)}.dot.ok{background:var(--green)}
+.plbl{text-align:center;padding:2px 14px 6px;font-size:.6em;color:var(--dim);flex-shrink:0;background:#0b1018;letter-spacing:1px;text-transform:uppercase}
+.keyhint{background:#0d1220;border-top:1px solid var(--border);padding:4px 14px;font-size:.55em;color:var(--dim);text-align:center;flex-shrink:0}
+.keyhint kbd{display:inline-block;background:var(--border);color:var(--cyan);padding:1px 5px;border-radius:3px;font-family:monospace;font-weight:700;margin:0 1px;font-size:1.1em}
+.body{flex:1;overflow-y:auto;padding:10px 12px;-webkit-overflow-scrolling:touch}
+.step{display:none}.step.on{display:block}
+.stitle{font-size:.8em;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;text-align:center}
+.ssub{font-size:.65em;color:var(--dim);text-align:center;margin-bottom:12px}
+
+.kc{background:var(--card);border:2px solid var(--border);border-radius:var(--r);padding:12px;display:flex;align-items:center;gap:10px;margin-bottom:7px;cursor:pointer;transition:.15s;position:relative}
+.kc:active{transform:scale(.97)}.kc.hl{border-color:var(--blue);background:#0d1a30}
+.ki{width:42px;height:42px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1em;font-weight:800;color:#fff;flex-shrink:0}
+.ki.c1{background:linear-gradient(135deg,#2e86de,#0c5faa)}.ki.c2{background:linear-gradient(135deg,#f39c12,#d68910)}.ki.c3{background:linear-gradient(135deg,#27ae60,#1e8449)}
+.kc h3{font-size:.82em;font-weight:700;color:#fff}.kc p{font-size:.58em;color:var(--dim);margin-top:1px}
+.kc .arr{margin-left:auto;color:var(--dim);font-size:1em}
+.kbadge{position:absolute;top:6px;right:8px;background:var(--border);color:var(--cyan);padding:1px 6px;border-radius:4px;font-family:monospace;font-size:.65em;font-weight:800}
+
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px}
+.sc{background:var(--card);border:2px solid var(--border);border-radius:var(--r);padding:10px 6px;text-align:center;cursor:pointer;transition:.15s;position:relative}
+.sc:active{transform:scale(.95)}.sc.sel{border-color:var(--cyan);background:#0a2e2e;box-shadow:0 0 10px rgba(0,206,201,.25)}
+.sc.hl{border-color:var(--cyan)}.sc.busy{opacity:.4;pointer-events:none}
+.sc .sn{font-weight:700;font-size:.78em;color:#fff}.sc .si{font-size:.55em;color:var(--dim);font-family:monospace;margin-top:2px}
+.sc .ss{font-size:.6em;font-weight:700;margin-top:4px}.ss.ok{color:var(--green)}.ss.bsy{color:var(--yellow)}
+.ss.src-tag{color:var(--cyan);font-size:.55em}
+.llbl{font-size:.6em;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin:6px 0 3px;padding-left:2px}
+
+.scard{background:var(--card);border:2px solid var(--border);border-radius:var(--r);padding:16px 14px;text-align:center}
+.scard .sico{font-size:2.5em;margin-bottom:6px}
+.sinp-wrap{display:flex;gap:6px;margin-top:10px}
+.sinp{flex:1;padding:12px 10px;border-radius:8px;border:2px solid var(--border);background:var(--bg);color:#fff;font-size:1.1em;font-family:monospace;text-align:center;letter-spacing:2px;outline:none}
+.sinp:focus{border-color:var(--blue)}.sinp::placeholder{color:var(--dim);letter-spacing:0;font-size:.7em}
+.sbtn{padding:12px 14px;border-radius:8px;border:none;background:var(--blue);color:#fff;font-size:.82em;font-weight:700;cursor:pointer;white-space:nowrap}
+.shint{font-size:.58em;color:var(--dim);margin-top:8px}
+.sres{margin-top:10px;padding:8px;border-radius:8px;background:#0a2e1a;border:1px solid var(--green);display:none}
+.sres.show{display:block}
+.sres .rcode{font-family:monospace;font-size:1.3em;font-weight:800;color:var(--green);letter-spacing:2px}
+.scan-ind{font-size:.6em;color:var(--yellow);margin-top:6px;display:none;font-family:monospace}
+.scan-ind.active{display:block}
+
+/* Context info bar */
+.ctx-bar{background:#0d1220;border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin-bottom:10px;display:flex;justify-content:space-between;font-size:.68em}
+.ctx-bar .cl{color:var(--dim)}.ctx-bar .cv{color:#fff;font-weight:700;font-family:monospace}
+
+/* Confirm auto-send */
+.cfm-auto{text-align:center;padding:16px}
+.cfm-summary{background:var(--card);border:2px solid var(--green);border-radius:var(--r);padding:14px;margin-bottom:10px}
+.cfm-row{display:flex;justify-content:space-between;padding:5px 0;font-size:.78em;border-bottom:1px solid #0d1220}
+.cfm-row:last-child{border-bottom:none}
+.cfm-lbl{color:var(--dim)}.cfm-val{font-weight:700;color:#fff;font-family:monospace}
+.cfm-flow{text-align:center;padding:10px;margin:8px 0;background:#0a1220;border-radius:8px}
+.cfm-flow .fa{color:var(--cyan);font-size:1.3em;margin:0 6px}
+.cfm-flow .fn{display:inline-block;padding:5px 10px;border-radius:6px;font-size:.78em;font-weight:700;font-family:monospace}
+.fn.ff{background:#0a2e1a;color:var(--green);border:1px solid var(--green)}
+.fn.ft{background:#0a1a2e;color:var(--blue);border:1px solid var(--blue)}
+.cfm-countdown{font-size:.9em;font-weight:800;color:var(--green);margin:10px 0}
+.cfm-cancel-btn{padding:10px 24px;border-radius:8px;border:2px solid var(--red);background:transparent;color:var(--red);font-size:.82em;font-weight:700;cursor:pointer}
+
+/* Result */
+.rcard{text-align:center;padding:24px 16px;background:var(--card);border-radius:var(--r);border:2px solid var(--border)}
+.rcard .rico{font-size:3em;margin-bottom:8px}.rcard .rtit{font-size:1em;font-weight:800;margin-bottom:4px}
+.rcard .rmsg{font-size:.72em;color:var(--dim);margin-bottom:10px}.rcard .rtask{font-family:monospace;font-size:.68em;color:var(--cyan)}
+.rcard.rok{border-color:var(--green)}.rcard.rfail{border-color:var(--red)}
+
+.acts{padding:8px 12px;flex-shrink:0;display:flex;gap:8px;background:#0b1018;border-top:1px solid var(--border)}
+.btn{flex:1;padding:12px;border-radius:var(--r);border:none;font-size:.82em;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:.15s}
+.btn:active{transform:scale(.97)}
+.btn-b{background:var(--card);color:var(--dim);border:1px solid var(--border)}
+.btn-n{background:var(--blue);color:#fff}.btn-n:disabled{background:var(--border);color:var(--dim);cursor:not-allowed}
+.btn-g{background:var(--green);color:#fff}.btn-g:disabled{background:var(--border);color:var(--dim)}
+
+.hist-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:6px;font-size:.7em}
+.hist-card .hdr-row{display:flex;justify-content:space-between;align-items:center}
+.hist-card .h-time{color:var(--dim);font-family:monospace;font-size:.85em}
+.hist-card .h-route{color:#fff;font-weight:700;font-family:monospace;margin:3px 0}
+.hist-card .h-rack{color:var(--cyan);font-family:monospace;font-size:.9em}
+.h-state{padding:1px 6px;border-radius:4px;font-size:.85em;font-weight:700;display:inline-block}
+.h-state.created{background:#4a3800;color:var(--yellow)}.h-state.executing{background:#0a2a4a;color:var(--blue)}
+.h-state.complete{background:#0a3a1a;color:var(--green)}.h-state.error{background:#3a0a0a;color:var(--red)}
+.h-state.cancelled{background:#2a1a1a;color:#b33939}
+.h-cancel{display:inline-block;padding:3px 10px;border-radius:5px;font-size:.8em;font-weight:700;background:transparent;color:var(--red);border:1px solid var(--red);cursor:pointer;margin-top:4px}
+.h-cancel:active{background:var(--red);color:#fff}
+.hist-empty{text-align:center;padding:20px;color:var(--dim);font-size:.75em}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div><h1>&#x1F3ED; KITTING DISPATCH</h1></div>
+  <div><span class="tag" id="hTag">PDA</span><a class="nav-link" href="#" onclick="showHistory()">&#x1F4CB;</a></div>
+</div>
+<div class="prog" id="progBar"><div class="dot" id="d0"></div><div class="dot" id="d1"></div><div class="dot" id="d2"></div><div class="dot" id="d3"></div></div>
+<div class="plbl" id="pLbl">Chọn khu vực</div>
+
+<div class="body" id="body">
+
+<!-- S0: Kitting -->
+<div class="step on" id="s0">
+  <div class="stitle">1. Chọn Khu Vực Kitting</div>
+  <div class="ssub">Nhấn <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></div>
+  <div id="kitCards"></div>
+</div>
+
+<!-- S1: Station -->
+<div class="step" id="s1">
+  <div class="stitle" id="s1t">2. Chọn Trạm Đích</div>
+  <div class="ssub">Trạm bận sẽ bị khoá</div>
+  <div id="staG"></div>
+</div>
+
+<!-- S2: Scan Position QR -->
+<div class="step" id="s2">
+  <div class="stitle">3. Scan Vị Trí</div>
+  <div class="ctx-bar"><span class="cl">Trạm đích:</span><span class="cv" id="ctx2Sta">---</span></div>
+  <div class="scard">
+    <div class="sico">&#x1F4CD;</div>
+    <div style="font-size:.82em;font-weight:700;color:#fff">Quét mã QR vị trí kitting</div>
+    <div class="sinp-wrap">
+      <input class="sinp" id="posInp" type="text" placeholder="Mã vị trí..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <button class="sbtn" onclick="confirmPosScan()">OK</button>
+    </div>
+    <div class="shint">Quét QR tại vị trí có xe hàng → tự động sang bước tiếp</div>
+    <div class="scan-ind" id="posScanInd">Đang nhận scan...</div>
+    <div class="sres" id="posRes">
+      <div style="font-size:.62em;color:var(--green);margin-bottom:3px">✓ Vị trí</div>
+      <div class="rcode" id="posCode">---</div>
+    </div>
+  </div>
+</div>
+
+<!-- S3: Scan Rack QR -->
+<div class="step" id="s3">
+  <div class="stitle">4. Scan Mã Rack</div>
+  <div class="ctx-bar"><span class="cl">Trạm:</span><span class="cv" id="ctx3Sta">---</span></div>
+  <div class="ctx-bar"><span class="cl">Vị trí:</span><span class="cv" id="ctx3Pos">---</span></div>
+  <div class="scard">
+    <div class="sico">&#x1F4E6;</div>
+    <div style="font-size:.82em;font-weight:700;color:#fff">Quét mã rack (xe hàng)</div>
+    <div class="sinp-wrap">
+      <input class="sinp" id="rackInp" type="text" placeholder="Mã rack..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <button class="sbtn" onclick="confirmRackScan()">OK</button>
+    </div>
+    <div class="shint">Quét mã rack → tự động xác nhận & gửi lệnh</div>
+    <div class="scan-ind" id="rackScanInd">Đang nhận scan...</div>
+    <div class="sres" id="rackRes">
+      <div style="font-size:.62em;color:var(--green);margin-bottom:3px">✓ Rack</div>
+      <div class="rcode" id="rackCode">---</div>
+    </div>
+  </div>
+</div>
+
+<!-- S4: Auto confirm & sending -->
+<div class="step" id="s4">
+  <div class="cfm-auto">
+    <div class="cfm-summary">
+      <div class="cfm-row"><span class="cfm-lbl">Khu vực</span><span class="cfm-val" id="cf0">---</span></div>
+      <div class="cfm-row"><span class="cfm-lbl">Vị trí</span><span class="cfm-val" id="cf1">---</span></div>
+      <div class="cfm-row"><span class="cfm-lbl">Rack</span><span class="cfm-val" id="cf2">---</span></div>
+      <div class="cfm-row"><span class="cfm-lbl">Trạm</span><span class="cfm-val" id="cf3">---</span></div>
+      <div class="cfm-row"><span class="cfm-lbl">Buffer</span><span class="cfm-val" id="cf4">---</span></div>
+    </div>
+    <div class="cfm-flow">
+      <span class="fn ff" id="cfF">---</span><span class="fa">→</span><span class="fn ft" id="cfT">---</span>
+    </div>
+    <div class="cfm-countdown" id="cfmCount">Đang gửi lệnh...</div>
+    <button class="cfm-cancel-btn" id="cfmCancel" onclick="cancelAutoSend()">✗ HỦY</button>
+  </div>
+</div>
+
+<!-- S5: Result -->
+<div class="step" id="s5"><div id="resC"></div></div>
+
+<!-- S6: History -->
+<div class="step" id="s6"><div class="stitle">Lịch Sử</div><div id="histList"></div></div>
+</div>
+
+<div class="keyhint" id="keyHint"><kbd>1</kbd>-<kbd>9</kbd> chọn | <kbd>Esc</kbd> quay lại</div>
+<div class="acts" id="acts">
+  <button class="btn btn-b" id="bBack" onclick="goBack()" style="display:none">← Quay lại</button>
+  <button class="btn btn-n" id="bNew" onclick="resetAll()" style="display:none">+ Lệnh mới</button>
+  <button class="btn btn-b" id="bHistBack" onclick="resetAll()" style="display:none">← Quay lại</button>
+</div>
+
+<script>
+var MW=window.location.origin;
+var KIT_CFG=null,STA_DATA={},ACTIVE_POS={},ACTIVE_STA={};
+var KIT_FB=[
+  {kitting_id:"KITTING-1",kitting_name:"Kitting 1",area_code:"K1",positions:[{id:"K11"},{id:"K12"},{id:"K13"},{id:"K14"},{id:"K15"},{id:"K16"}],lines:[["T1","T2","T3"],["T4","T5","T6"]]},
+  {kitting_id:"KITTING-2",kitting_name:"Kitting 2",area_code:"K2",positions:[{id:"K21"},{id:"K22"},{id:"K23"},{id:"K24"},{id:"K25"},{id:"K26"}],lines:[["T15","T16","T17"],["T18","T19","T20","T21"]]},
+  {kitting_id:"KITTING-3",kitting_name:"Kitting 3",area_code:"K3",positions:[{id:"K31"},{id:"K32"},{id:"K33"},{id:"K34"},{id:"K35"},{id:"K36"}],lines:[["T9","T10","T11"],["T12","T13","T14"]]}
+];
+var step=0,sel={kit:null,kitIdx:-1,pos:null,rack:null,sta:null,buffer:null};
+var staKeyList=[];
+var autoSendTimer=null;
+var activeScanStep=-1; // Which step is currently scanning (2 or 3)
+
+// ==================== DATA ====================
+function loadConfig(cb){fetch(MW+'/api/v1/pda/config').then(function(r){return r.json()}).then(function(d){KIT_CFG=(d&&d.kitting_layout)?d.kitting_layout:KIT_FB;if(cb)cb()}).catch(function(){KIT_CFG=KIT_FB;if(cb)cb()})}
+function loadActive(cb){fetch(MW+'/api/v1/kitting/active').then(function(r){return r.json()}).then(function(d){ACTIVE_POS=d.by_position||{};ACTIVE_STA=d.by_station||{};if(cb)cb()}).catch(function(){ACTIVE_POS={};ACTIVE_STA={};if(cb)cb()})}
+function loadStations(cb){fetch(MW+'/api/v1/admin/stations').then(function(r){return r.json()}).then(function(d){STA_DATA={};if(Array.isArray(d))d.forEach(function(s){STA_DATA[s.id]=s});if(cb)cb()}).catch(function(){if(cb)cb()})}
+
+// ==================== SCANNER BUFFER ====================
+var scanBuf='',scanTimer=null;
+function handleScanKey(e,inputId,indId,confirmFn){
+  var inp=document.getElementById(inputId);
+  if(document.activeElement===inp)return false;
+  if(e.key.length===1&&!e.ctrlKey&&!e.altKey&&!e.metaKey){
+    e.preventDefault();scanBuf+=e.key;
+    document.getElementById(indId).classList.add('active');
+    if(scanTimer)clearTimeout(scanTimer);
+    scanTimer=setTimeout(function(){
+      if(scanBuf.length>=2){inp.value=scanBuf;confirmFn()}
+      scanBuf='';document.getElementById(indId).classList.remove('active');
+    },250);return true;
+  }
+  if(e.key==='Enter'&&scanBuf.length>0){
+    e.preventDefault();if(scanTimer)clearTimeout(scanTimer);
+    inp.value=scanBuf;scanBuf='';document.getElementById(indId).classList.remove('active');
+    confirmFn();return true;
+  }
+  return false;
+}
+
+// ==================== KEYPAD ====================
+document.addEventListener('keydown',function(e){
+  var key=e.key,num=parseInt(key);
+  // Scanner steps
+  if(step===2){if(handleScanKey(e,'posInp','posScanInd',confirmPosScan))return}
+  if(step===3){if(handleScanKey(e,'rackInp','rackScanInd',confirmRackScan))return}
+  // Esc/Back
+  if(key==='Escape'||key==='Backspace'){
+    if((step===2||step===3)&&document.activeElement&&document.activeElement.tagName==='INPUT'&&key==='Backspace')return;
+    e.preventDefault();if(step===6){resetAll();return}if(step===4){cancelAutoSend();return}if(step>0&&step<4)goBack();return;
+  }
+  // Enter in scan steps
+  if(key==='Enter'){
+    e.preventDefault();
+    if(step===2){var v=document.getElementById('posInp').value.trim();if(v.length>0)confirmPosScan();return}
+    if(step===3){var v=document.getElementById('rackInp').value.trim();if(v.length>0)confirmRackScan();return}
+    if(step===5)resetAll();return;
+  }
+  // Number keys
+  if(isNaN(num)||num<1)return;
+  if(step===0&&num>=1&&num<=3){e.preventDefault();hl('.kc','kc'+(num-1),function(){pickKit(num-1)});return}
+  if(step===1&&num>=1&&num<=staKeyList.length){
+    e.preventDefault();var sid=staKeyList[num-1];var d=STA_DATA[sid]||{};var ha=!!ACTIVE_STA[sid];
+    if((!d.state||d.state==='idle')&&!ha)hl('.sc','st-'+sid,function(){pickSta(sid)});return;
+  }
+});
+function hl(cls,id,fn){document.querySelectorAll(cls).forEach(function(e){e.classList.remove('hl')});var el=document.getElementById(id);if(el)el.classList.add('hl');setTimeout(fn,150)}
+
+// ==================== NAV ====================
+var stepLabels=["Chọn khu vực","Chọn trạm","Scan vị trí","Scan rack","Đang gửi...","","Lịch sử"];
+function go(n){
+  step=n;activeScanStep=-1;
+  for(var i=0;i<7;i++){var e=document.getElementById('s'+i);if(e)e.className=i==n?'step on':'step'}
+  for(var i=0;i<4;i++){var d=document.getElementById('d'+i);d.className='dot'+(i<n?' ok':(i==n?' on':''))}
+  document.getElementById('pLbl').textContent=stepLabels[n]||'';
+  document.getElementById('progBar').style.display=(n>=5)?'none':'flex';
+  var bb=document.getElementById('bBack'),bn=document.getElementById('bNew'),bh=document.getElementById('bHistBack');
+  bb.style.display=(n>=1&&n<=3)?'block':'none';
+  bn.style.display=(n==5)?'block':'none';
+  bh.style.display=(n==6)?'block':'none';
+  if(n==0)buildKitCards();
+  if(n==1)buildSta();
+  if(n==2){
+    activeScanStep=2;
+    document.getElementById('ctx2Sta').textContent=sel.sta||'---';
+    setTimeout(function(){var inp=document.getElementById('posInp');inp.value='';inp.focus();inp.click()},200);
+    document.getElementById('posRes').classList.remove('show');document.getElementById('posScanInd').classList.remove('active');scanBuf='';sel.pos=null;
+  }
+  if(n==3){
+    activeScanStep=3;
+    document.getElementById('ctx3Sta').textContent=sel.sta||'---';
+    document.getElementById('ctx3Pos').textContent=sel.pos||'---';
+    setTimeout(function(){var inp=document.getElementById('rackInp');inp.value='';inp.focus();inp.click()},200);
+    document.getElementById('rackRes').classList.remove('show');document.getElementById('rackScanInd').classList.remove('active');scanBuf='';sel.rack=null;
+  }
+  if(n==4)startAutoSend();
+}
+function goBack(){
+  if(autoSendTimer){clearTimeout(autoSendTimer);autoSendTimer=null}
+  if(step>0&&step<5)go(step-1);
+}
+function getKit(){return(KIT_CFG&&sel.kitIdx>=0)?KIT_CFG[sel.kitIdx]:null}
+// Keep scan input focused
+setInterval(function(){
+  if(step===2){var inp=document.getElementById('posInp');if(document.activeElement!==inp&&!document.querySelector('#posRes.show'))inp.focus()}
+  if(step===3){var inp=document.getElementById('rackInp');if(document.activeElement!==inp&&!document.querySelector('#rackRes.show'))inp.focus()}
+},500);
+
+// ==================== S0: KITTING ====================
+function buildKitCards(){
+  loadActive(function(){
+    if(!KIT_CFG)return;
+    var h='';
+    KIT_CFG.forEach(function(k,i){
+      var cls=['c1','c2','c3'][i]||'c1';
+      var lbl=k.area_code||('K'+(i+1));
+      var lineStr=k.lines.map(function(l){return(Array.isArray(l)?l:l).join('\u2192')}).join(' | ');
+      h+='<div class="kc" id="kc'+i+'" onclick="pickKit('+i+')"><div class="ki '+cls+'">'+lbl+'</div>';
+      h+='<div><h3>'+k.kitting_name+'</h3><p>'+lineStr+'</p></div>';
+      h+='<div class="kbadge">'+(i+1)+'</div><div class="arr">\u203a</div></div>';
+    });
+    document.getElementById('kitCards').innerHTML=h;
+  });
+}
+function pickKit(idx){
+  if(!KIT_CFG||idx>=KIT_CFG.length)return;
+  var k=KIT_CFG[idx];
+  sel={kit:k.kitting_id,kitIdx:idx,pos:null,rack:null,sta:null,buffer:null};
+  document.getElementById('hTag').textContent=k.kitting_name;
+  go(1);
+}
+
+// ==================== S1: STATIONS ====================
+function buildSta(){
+  var k=getKit();if(!k)return;
+  document.getElementById('s1t').textContent='2. Trạm — '+k.kitting_name;
+  loadStations(function(){loadActive(function(){renderSta(k)})});
+}
+function renderSta(k){
+  var g=document.getElementById('staG'),h='';staKeyList=[];var kn=1;
+  k.lines.forEach(function(line){
+    var sids=Array.isArray(line)?line:(line.s||line);
+    h+='<div class="sgrid">';
+    sids.forEach(function(sid){
+      var d=STA_DATA[sid]||{};var st=d.state||'idle';var act=ACTIVE_STA[sid];
+      var isBusy=(st!='idle')||!!act;var buf=d.buffer||sid+'B';
+      staKeyList.push(sid);
+      h+='<div class="sc'+(isBusy?' busy':'')+'" id="st-'+sid+'" onclick="pickSta(\''+sid+'\')" data-buf="'+buf+'">';
+      h+='<div class="kbadge">'+kn+'</div><div class="sn">'+(d.name||sid)+'</div>';
+      h+='<div class="si">'+sid+' \u2192 '+buf+'</div>';
+      if(act)h+='<div class="ss bsy">\u26A1 '+act.state.toUpperCase()+'</div><div class="ss src-tag">\u2190 '+act.source+'</div>';
+      else if(st!='idle')h+='<div class="ss bsy">\u26A0 '+st.toUpperCase()+'</div>';
+      else h+='<div class="ss ok">\u2713 Sẵn sàng</div>';
+      h+='</div>';kn++;
+    });h+='</div>';
+  });g.innerHTML=h;
+}
+function pickSta(sid){
+  var d=STA_DATA[sid]||{};if((d.state&&d.state!='idle')||ACTIVE_STA[sid]){alert('Trạm '+sid+' đang bận');return}
+  sel.sta=sid;var el=document.getElementById('st-'+sid);
+  sel.buffer=(d.buffer)||(el?el.getAttribute('data-buf'):sid+'B')||sid+'B';
+  document.querySelectorAll('.sc').forEach(function(e){e.classList.remove('sel')});
+  if(el)el.classList.add('sel');
+  if(navigator.vibrate)navigator.vibrate(50);
+  setTimeout(function(){go(2)},200);
+}
+
+// ==================== S2: SCAN POSITION ====================
+function confirmPosScan(){
+  var inp=document.getElementById('posInp');
+  var v=inp.value.trim().toUpperCase();
+  if(v.length<1){inp.focus();return}
+  // Check if position has active task
+  if(ACTIVE_POS[v]){
+    alert('Vị trí '+v+' đang có task ('+ACTIVE_POS[v].state+')!\nChọn vị trí khác.');
+    inp.value='';inp.focus();return;
+  }
+  sel.pos=v;
+  document.getElementById('posCode').textContent=v;
+  document.getElementById('posRes').classList.add('show');
+  if(navigator.vibrate)navigator.vibrate(100);
+  // AUTO ADVANCE to scan rack
+  setTimeout(function(){go(3)},800);
+}
+
+// ==================== S3: SCAN RACK ====================
+function confirmRackScan(){
+  var inp=document.getElementById('rackInp');
+  var v=inp.value.trim().toUpperCase();
+  if(v.length<1){inp.focus();return}
+  sel.rack=v;
+  document.getElementById('rackCode').textContent=v;
+  document.getElementById('rackRes').classList.add('show');
+  if(navigator.vibrate)navigator.vibrate(100);
+  // AUTO ADVANCE to confirm & send
+  setTimeout(function(){go(4)},800);
+}
+
+// ==================== S4: AUTO CONFIRM & SEND ====================
+function startAutoSend(){
+  var k=getKit()||{};
+  document.getElementById('cf0').textContent=k.kitting_name||sel.kit;
+  document.getElementById('cf1').textContent=sel.pos||'---';
+  document.getElementById('cf2').textContent=sel.rack||'---';
+  document.getElementById('cf3').textContent=sel.sta||'---';
+  document.getElementById('cf4').textContent=sel.buffer||'---';
+  document.getElementById('cfF').textContent=sel.pos||'---';
+  document.getElementById('cfT').textContent=sel.buffer||'---';
+  document.getElementById('cfmCancel').style.display='inline-block';
+  // Countdown and send
+  var countdown=3;
+  document.getElementById('cfmCount').textContent='Gửi lệnh sau '+countdown+'s...';
+  document.getElementById('cfmCount').style.color='var(--green)';
+  autoSendTimer=setInterval(function(){
+    countdown--;
+    if(countdown<=0){
+      clearInterval(autoSendTimer);autoSendTimer=null;
+      document.getElementById('cfmCount').textContent='Đang gửi...';
+      document.getElementById('cfmCancel').style.display='none';
+      doSend();
+    }else{
+      document.getElementById('cfmCount').textContent='Gửi lệnh sau '+countdown+'s...';
+    }
+  },1000);
+}
+function cancelAutoSend(){
+  if(autoSendTimer){clearInterval(autoSendTimer);autoSendTimer=null}
+  goBack();
+}
+
+// ==================== SEND ====================
+function doSend(){
+  fetch(MW+'/api/v1/kitting/dispatch',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({kitting_id:sel.kit,source_position:sel.pos,rack_code:sel.rack,dest_station:sel.sta,dest_buffer:sel.buffer,timestamp:Date.now()})
+  }).then(function(r){return r.json()}).then(function(d){showRes(d.success!==false,d)})
+  .catch(function(e){showRes(false,{message:'Lỗi: '+e.message})});
+}
+function showRes(ok,d){
+  var c=document.getElementById('resC');
+  if(ok){c.innerHTML='<div class="rcard rok"><div class="rico">\u2705</div><div class="rtit" style="color:var(--green)">Thành Công!</div><div class="rmsg">'+(d.message||'MF02 sent')+'</div>'+(d.task_id?'<div class="rtask">Task: '+d.task_id+'</div>':'')+'</div>'}
+  else{c.innerHTML='<div class="rcard rfail"><div class="rico">\u274C</div><div class="rtit" style="color:var(--red)">Thất Bại</div><div class="rmsg">'+(d.message||'Thử lại')+'</div></div>'}
+  go(5);if(navigator.vibrate)navigator.vibrate(ok?[80,40,80]:[150,80,150,80,150]);
+}
+
+// ==================== HISTORY ====================
+function showHistory(){
+  fetch(MW+'/api/v1/kitting/history').then(function(r){return r.json()}).then(function(data){
+    var list=document.getElementById('histList'),h='';
+    if(!data||!data.length){h='<div class="hist-empty">Chưa có lệnh</div>'}
+    else{data.forEach(function(d){
+      var canCancel=(d.state==='created'||d.state==='executing');
+      h+='<div class="hist-card"><div class="hdr-row"><span class="h-time">'+(d.time||'')+'</span><span class="h-state '+(d.state||'idle')+'">'+(d.state||'?').toUpperCase()+'</span></div>';
+      h+='<div class="h-route">'+(d.source||'?')+' \u2192 '+(d.buffer||'?')+' ('+(d.station||'?')+')</div>';
+      h+='<div class="h-rack">Rack: '+(d.rack||'-')+'</div>';
+      if(canCancel) h+='<button class="h-cancel" onclick="cancelDispatch('+d.id+')">✗ Huỷ lệnh</button>';
+      h+='</div>';
+    })}
+    list.innerHTML=h;go(6);
+  }).catch(function(e){document.getElementById('histList').innerHTML='<div class="hist-empty">Lỗi: '+e.message+'</div>';go(6)});
+}
+function cancelDispatch(id){
+  if(!confirm('Huỷ lệnh #'+id+'?'))return;
+  fetch(MW+'/api/v1/kitting/cancel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dispatch_id:id})})
+  .then(function(r){return r.json()}).then(function(d){
+    alert(d.message||JSON.stringify(d));
+    if(d.success) showHistory();
+  }).catch(function(e){alert('Lỗi: '+e.message)});
+}
+function resetAll(){
+  if(autoSendTimer){clearInterval(autoSendTimer);autoSendTimer=null}
+  sel={kit:null,kitIdx:-1,pos:null,rack:null,sta:null,buffer:null};
+  document.getElementById('hTag').textContent='PDA';scanBuf='';go(0);
+}
+
+loadConfig(function(){go(0)});
+</script>
+</body>
+</html>
